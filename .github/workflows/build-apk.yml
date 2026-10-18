@@ -25,13 +25,15 @@ jobs:
           p = Path("android/app/build.gradle.kts")
           if p.exists():
               s = p.read_text()
-              s = s.replace("compileSdk = flutter.compileSdkVersion", "compileSdk = 36")
+              import re
+              s = re.sub(r"(?m)^\s*compileSdk\s*=.*$", "    compileSdk = 36", s)
               p.write_text(s)
           p = Path("android/app/build.gradle")
           if p.exists():
               s = p.read_text()
-              s = s.replace("compileSdkVersion flutter.compileSdkVersion", "compileSdkVersion 36")
-              s = s.replace("compileSdk flutter.compileSdkVersion", "compileSdk 36")
+              import re
+              s = re.sub(r"(?m)^\s*compileSdkVersion\s+.*$", "    compileSdkVersion 36", s)
+              s = re.sub(r"(?m)^\s*compileSdk\s+.*$", "    compileSdk 36", s)
               p.write_text(s)
           manifest = Path("android/app/src/main/AndroidManifest.xml")
           if manifest.exists():
