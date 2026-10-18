@@ -18,6 +18,34 @@ jobs:
         run: flutter pub get
       - name: Create Android project scaffolding
         run: flutter create . --platforms=android --org com.atcards
+      - name: Set Android SDK and Takrar app icon
+        run: |
+          python3 - <<'PY'
+          from pathlib import Path
+          p = Path("android/app/build.gradle.kts")
+          if p.exists():
+              s = p.read_text()
+              s = s.replace("compileSdk = flutter.compileSdkVersion", "compileSdk = 36")
+              p.write_text(s)
+          p = Path("android/app/build.gradle")
+          if p.exists():
+              s = p.read_text()
+              s = s.replace("compileSdkVersion flutter.compileSdkVersion", "compileSdkVersion 36")
+              s = s.replace("compileSdk flutter.compileSdkVersion", "compileSdk 36")
+              p.write_text(s)
+          manifest = Path("android/app/src/main/AndroidManifest.xml")
+          if manifest.exists():
+              s = manifest.read_text().replace('android:label="at_cards"', 'android:label="تكرار"')
+              s = s.replace('android:label="at_cards"', 'android:label="تكرار"')
+              manifest.write_text(s)
+          # Use our custom raster launcher icon on all Android versions.
+          adaptive = Path("android/app/src/main/res/mipmap-anydpi-v26")
+          if adaptive.exists():
+              for name in ("ic_launcher.xml", "ic_launcher_round.xml"):
+                  f = adaptive / name
+                  if f.exists(): f.unlink()
+          PY
+          python3 tool/generate_icon.py
       - name: Build release APK
         run: flutter build apk --release
       - name: Upload APK
