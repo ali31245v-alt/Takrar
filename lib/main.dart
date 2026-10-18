@@ -14,7 +14,7 @@ class FlashCard{
  FlashCard(this.front,this.back,{this.interval=0,this.reps=0,this.due=0,this.ease=2.5});
  bool get mastered=>interval>=7;
  int next(int q){if(q==0)return 0;if(q==1)return math.max(1,(interval*1.2).round());if(q==2){if(reps==0)return 1;if(reps==1)return 3;return math.max(1,(interval*ease).round());}return reps==0?3:math.max(2,(interval*ease*1.3).round());}
- void rate(int q,int day){final n=next(q);if(q==0){reps=0;ease=math.max(1.3,ease-.2);}else{if(q==1)ease=math.max(1.3,ease-.15);if(q==3)ease+=.15;reps++;}interval=n;due=day+n;}
+ void rate(int q,int day){final n=next(q);if(q==0){reps=0;ease=math.max(1.3,ease-.2).toDouble();}else{if(q==1)ease=math.max(1.3,ease-.15).toDouble();if(q==3)ease+=.15;reps++;}interval=n;due=day+n;}
  Map<String,dynamic> toJson()=>{'front':front,'back':back,'interval':interval,'reps':reps,'due':due,'ease':ease};
  factory FlashCard.fromJson(Map<String,dynamic> j)=>FlashCard(j['front']?.toString()??'',j['back']?.toString()??'',interval:(j['interval'] as num?)?.toInt()??0,reps:(j['reps'] as num?)?.toInt()??0,due:(j['due'] as num?)?.toInt()??0,ease:(j['ease'] as num?)?.toDouble()??2.5);
 }
