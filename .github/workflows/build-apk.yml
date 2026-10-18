@@ -22,31 +22,24 @@ jobs:
         run: |
           python3 - <<'PY'
           from pathlib import Path
-          p = Path("android/app/build.gradle.kts")
-          if p.exists():
-              s = p.read_text()
-              import re
-              s = re.sub(r"(?m)^\s*compileSdk\s*=.*$", "    compileSdk = 36", s)
-              p.write_text(s)
-          p = Path("android/app/build.gradle")
-          if p.exists():
-              s = p.read_text()
-              import re
-              s = re.sub(r"(?m)^\s*compileSdkVersion\s+.*$", "    compileSdkVersion 36", s)
-              s = re.sub(r"(?m)^\s*compileSdk\s+.*$", "    compileSdk 36", s)
-              p.write_text(s)
+          import re
+          for name in ("android/app/build.gradle.kts", "android/app/build.gradle"):
+              p = Path(name)
+              if p.exists():
+                  s = p.read_text()
+                  s = re.sub(r"(?m)^.*compileSdk.*$", lambda m: "    compileSdk = 36" if name.endswith(".kts") else "    compileSdkVersion 36", s)
+                  p.write_text(s)
           manifest = Path("android/app/src/main/AndroidManifest.xml")
           if manifest.exists():
               s = manifest.read_text().replace('android:label="at_cards"', 'android:label="تكرار"')
-              s = s.replace('android:label="at_cards"', 'android:label="تكرار"')
               manifest.write_text(s)
-          # Use our custom raster launcher icon on all Android versions.
           adaptive = Path("android/app/src/main/res/mipmap-anydpi-v26")
           if adaptive.exists():
               for name in ("ic_launcher.xml", "ic_launcher_round.xml"):
                   f = adaptive / name
                   if f.exists(): f.unlink()
           PY
+          grep -n "compileSdk" android/app/build.gradle.kts android/app/build.gradle 2>/dev/null || true
           python3 tool/generate_icon.py
       - name: Build release APK
         run: flutter build apk --release
