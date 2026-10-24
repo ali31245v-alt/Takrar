@@ -14,6 +14,15 @@ jobs:
         with:
           channel: stable
           cache: true
+      - name: Set up Java
+        uses: actions/setup-java@v6
+        with:
+          distribution: temurin
+          java-version: '17'
+      - name: Set up Android SDK
+        uses: android-actions/setup-android@v4
+      - name: Install Android platform and build tools
+        run: sdkmanager --install "platforms;android-36" "build-tools;36.0.0"
       - name: Install dependencies
         run: flutter pub get
       - name: Create Android project scaffolding
